@@ -9,9 +9,9 @@ The server is implemented using *nodejs* and *mysql*.
 After installing nodejs and mysql, run mysql's CLI, create a database, use the newly created database, and run these commands.
 ```
 mysql> source /path/to/createtable.sql
-mysql> source /path/to/createcompany.sql
 ```
-This will create two tables with some placeholder data rows, and a mySQL procedure used in creating a new company *(details below)*.
+note running `source /path/to/createcompany.sql` is no longer needed.
+This will create two tables with some placeholder data rows~~, and a mySQL procedure used in creating a new company *(details below)*~~.
 
 edit the `db/dbconfig-example.js` so it may look like this:
 ```js
@@ -156,7 +156,4 @@ bcb30d10-1092-11e7-a23b-0d343409add0
 
 #### The purpose of `createcompany.sql`
 
-Running `mysql> source /path/to/createcompany.sql` creates a new **procedure** `create_company` on the database. When POSTing on `/company` with valid company data, the server will call the `create_company` procedure on the database.
-
-This method requires running the `createcompany.sql` on every time configuring the database (which is kind of disorganized). But limits the server to make 1 database query per request, preventing possible errors on concurrent `/company` calls. To make things easier, I might make the server make *transactions* instead, later.
-
+removed. Creating company now uses MySQL's TRANSACTIONs.

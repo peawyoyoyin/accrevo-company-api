@@ -11,7 +11,7 @@ After installing nodejs and mysql, run mysql's CLI, create a database, use the n
 mysql> source /path/to/createtable.sql
 ```
 note running `source /path/to/createcompany.sql` is no longer needed.
-This will create two tables with some placeholder data rows~~, and a mySQL procedure used in creating a new company *(details below)*~~.
+This will create two tables with some placeholder data rows ~~, and a mySQL procedure used in creating a new company ~~.
 
 edit the `db/dbconfig-example.js` so it may look like this:
 ```js

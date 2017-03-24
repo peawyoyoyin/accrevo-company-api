@@ -11,7 +11,7 @@ After installing nodejs and mysql, run mysql's CLI, create a database, use the n
 mysql> source /path/to/createtable.sql
 ```
 note running `source /path/to/createcompany.sql` is no longer needed.
-This will create two tables with some placeholder data rows ~~, and a mySQL procedure used in creating a new company ~~.
+This will create two tables with some placeholder data rows.
 
 edit the `db/dbconfig-example.js` so it may look like this:
 ```js
@@ -153,7 +153,3 @@ bcb30d10-1092-11e7-a23b-0d343409add0
  - To avoid two companies having the same API keys at the same time. The API keys are generated using `uuid/v1` which is unique depending on time (and space).
  - API keys are generated on creating a new company, and on requesting `/company/getNewAPIkey`.
  - The API Documentation provided specified that the API keys need to be **50** characters long. Right now the UUIDs generated is 36 characters long, perhaps I will change to some other methods that returns a 50-character-long keys later.
-
-#### The purpose of `createcompany.sql`
-
-removed. Creating company now uses MySQL's TRANSACTIONs.

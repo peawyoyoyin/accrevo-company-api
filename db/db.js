@@ -20,23 +20,25 @@ module.exports.getCompanyByName = function(name, _callback) {
 };
 
 module.exports.addNewCompany = function(company, _callback) {
-    console.log("addNewCompany call");
-    console.log(company);
+    var db = mysql.createConnection(dbconfig);
+    var newAPIKey = APIKeyGen.getByUUID();
     
-    //try to validate company object
     var err = validateCompany(company);
-
     if(err.length) {
         if(_callback) {
-            _callback({status: 400, message: ["invalid company",err]},null);
+            _callback({status: 400, message: ["invalid company", err]}, null);
         }
     } else {
-        var db = mysql.createConnection(dbconfig);
-        var newAPIKey = APIKeyGen.getByUUID();
-        db.connect();
+    db.connect();
+    db.beginTransaction(function(err) {
+        if(err) {throw err;}
         db.query({
-            //create company(name, address, id13, taxbr, type, year, owner, partner, code,newapikey)
-            sql: "CALL create_company(?,?,?,?,?,?,?,?,?,?);",
+            sql: `
+            INSERT INTO companys
+            (name, address, id13, taxbr, type, year, owner, partner, code, created_at, updated_at)
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW());
+            `,
             values: [
                 company.name,
                 company.address,
@@ -46,23 +48,42 @@ module.exports.addNewCompany = function(company, _callback) {
                 company.year,
                 company.owner,
                 company.partner,
-                company.code,
-                newAPIKey,
+                company.code
             ]
-        }, function(error, results) {
-            if(error) { 
-                console.log(error);
-                if(_callback) {
-                    _callback({status: 500, message: ["internal server error"]},null);
+        },function(err, results) {
+            if(err) {
+                return db.rollback(function() {
+                    throw err;
+                });
+            }
+
+            db.query({
+                sql: `
+                INSERT INTO companykey
+                (companykey.company_id, companykey.key)
+                VALUES
+                (LAST_INSERT_ID(), ?)
+                `,
+                values: [newAPIKey]
+            }, function(err, results) {
+                if(err) {
+                    return db.rollback(function() {
+                        throw err;
+                    });
                 }
-                return;
-            }
-            if(_callback) {
-                _callback(undefined, results);
-            }
+
+                db.commit(function(err) {
+                    if(err) {
+                        return db.rollback(function() {
+                            throw err;
+                        });
+                    }
+                });
+
+                console.log("addNewCompany_v2 success!");
+            });
         });
-        console.log("inserted new company");
-        console.log(company);
+    });
     }
 };
 
